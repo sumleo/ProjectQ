@@ -11,6 +11,17 @@ set_target_properties(dummycu PROPERTIES
     POSITION_INDEPENDENT_CODE ON
     CUDA_VISIBILITY_PRESET "hidden")
 
-target_link_libraries(dummy PRIVATE dummycu)
-target_link_libraries(dummy PRIVATE pybind11::module)
+add_library(_cppsim MODULE
+    _cppsim.cpp
+)
+
+set_target_properties(_cppsim PROPERTIES
+    CXX_VISIBILITY_PRESET "hidden"
+    INTERPROCEDURAL_OPTIMIZATION TRUE
+    PREFIX ""
+    SUFFIX ""
+)
+
+target_link_libraries(_cppsim PRIVATE dummycu)
+target_link_libraries(_cppsim PRIVATE pybind11::module)
 # pybind11_add_module(_cppsim _cppsim.cpp)
