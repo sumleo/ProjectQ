@@ -21,7 +21,6 @@
 #if defined(_OPENMP)
 #include <omp.h>
 #endif
-#include "_cppkernels/cudastart.h"
 #include "_cppkernels/simulator.hpp"
 
 namespace py = pybind11;
@@ -64,7 +63,5 @@ PYBIND11_PLUGIN(_cppsim) {
         .def("run", &Simulator::run)
         .def("cheat", &Simulator::cheat)
         ;
-    // Initial Cuda Device
-    initDevice(0);
     return m.ptr();
 }

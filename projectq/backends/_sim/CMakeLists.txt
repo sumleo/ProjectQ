@@ -22,5 +22,4 @@ set_target_properties(_cppsim PROPERTIES
 )
 
 target_link_libraries(_cppsim PRIVATE _cppsimcu)
-target_link_libraries(_cppsim PRIVATE pybind11::module)
-# pybind11_add_module(_cppsim _cppsim.cpp)
+pybind11_add_module(_cppsim _cppsim.cpp)
