@@ -11,4 +11,4 @@ add_subdirectory(pybind11)
 cuda_add_library(cuda_gpu SHARED _cppkernels/cudastart.cu)
 
 pybind11_add_module(_cppsim _cppsim.cpp)
-target_link_libraries(_cppsim SHARED cuda_gpu)
+# target_link_libraries(_cppsim SHARED cuda_gpu)
