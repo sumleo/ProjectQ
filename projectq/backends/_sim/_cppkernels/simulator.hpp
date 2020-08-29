@@ -42,6 +42,7 @@ public:
     using calc_type = double;
     using complex_type = std::complex<calc_type>;
     using StateVector = thrust::host_vector<complex_type, aligned_allocator<complex_type,512>>;
+    using DeviceVector = thrust::device_vector<complex_type, aligned_allocator<complex_type,512>>;
     using Map = std::map<unsigned, unsigned>;
     using RndEngine = std::mt19937;
     using Term = std::vector<std::pair<unsigned, char>>;
@@ -65,7 +66,7 @@ public:
               std::swap(newvec, tmpBuff1_);
             newvec.resize(1UL << N_);
             // GPU Speed up here
-            thrust::device_vector<complex_type, aligned_allocator<complex_type,512>> tmp_device_vector;
+            DeviceVector tmp_device_vector;
             tmp_device_vector = newvec;
             thrust::fill(tmp_device_vector.begin(),tmp_device_vector.end(), 0.);
             thrust::copy(vec_.begin(), vec_.begin() + vec_.size(), tmp_device_vector.begin());
