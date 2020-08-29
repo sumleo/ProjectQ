@@ -9,9 +9,7 @@ cuda_add_library(_cppsim SHARED
   _cppsim.cpp
   _cppkernels/cudastart.cu)
 
-target_link_libraries(_cppsim
-  ${PYTHON_LIBRARIES}
-  cudart)
+target_link_libraries(_cppsim cudart)
 
 set_target_properties(_cppsim PROPERTIES PREFIX "")
 
