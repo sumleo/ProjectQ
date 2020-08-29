@@ -3,13 +3,16 @@ project(projectq_gpu LANGUAGES CXX CUDA)
 find_package( CUDA REQUIRED )
 #find_package(PythonLibs)
 #include_directories(${PYTHON_INCLUDE_DIRS})
-add_subdirectory(pybind11)
+include_directories(
+    ${PYTHON_INCLUDE_DIRS}
+    ./pybind11/include
+    )
 
 cuda_add_library(_cppsim SHARED
   _cppsim.cpp
   _cppkernels/cudastart.cu)
 
-target_link_libraries(_cppsim cudart)
+target_link_libraries(_cppsim ${PYTHON_LIBRARIES} cudart)
 
 set_target_properties(_cppsim PROPERTIES PREFIX "")
 
