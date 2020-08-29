@@ -192,7 +192,7 @@ requirements = [r.strip() for r in requirements]
 ext_modules = [
     Extension(
         'projectq.backends._sim._cppsim',
-        ['projectq/backends/_sim/_cppsim.cu'],
+        ['projectq/backends/_sim/_cppsim.cpp'],
         include_dirs=[
             # Path to pybind11 headers
             get_pybind_include(),

@@ -23,7 +23,6 @@
 #else
 #include "intrin/kernels.hpp"
 #endif
-#include <cuda_runtime.h>
 #include "cudastart.h"
 #include "intrin/alignedallocator.hpp"
 #include "fusion.hpp"
@@ -52,6 +51,8 @@ public:
         vec_[0]=1.; // all-zero initial state
         std::uniform_real_distribution<double> dist(0., 1.);
         rng_ = std::bind(dist, std::ref(rnd_eng_));
+        //Initial GPU
+        initDevice(0);
     }
 
     void allocate_qubit(unsigned id){
