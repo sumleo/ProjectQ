@@ -1,19 +1,13 @@
 cmake_minimum_required(VERSION 2.8.12)
 project(projectq_gpu LANGUAGES CXX CUDA)
 find_package( CUDA REQUIRED )
-#find_package(PythonLibs)
-#include_directories(${PYTHON_INCLUDE_DIRS})
-include_directories(
-    ${PYTHON_INCLUDE_DIRS}
-    ./pybind11/include
-    )
 
-cuda_add_library(_cppsim SHARED
-  _cppsim.cpp
-  _cppkernels/cudastart.cu)
+set(CMAKE_SKIP_BUILD_RPATH TRUE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-target_link_libraries(_cppsim ${PYTHON_LIBRARIES} cudart)
+add_subdirectory(pybind11)
+cuda_add_library(cuda_gpu SHARED _cppkernels/cudastart.cu)
 
-set_target_properties(_cppsim PROPERTIES PREFIX "")
-
-# pybind11_add_module(_cppsim _cppsim.cpp)
+pybind11_add_module(_cppsim _cppsim.cpp)
+target_link_libraries(_cppsim PRIVATE cuda_gpu)
