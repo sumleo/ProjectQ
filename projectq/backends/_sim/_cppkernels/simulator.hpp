@@ -32,6 +32,7 @@
 #include <tuple>
 #include <random>
 #include <functional>
+#include <cuda_runtime.h>
 
 
 
@@ -537,6 +538,8 @@ public:
     }
 
     ~Simulator(){
+        // Release cuda device
+    	cudaDeviceReset();
     }
 
 private:
