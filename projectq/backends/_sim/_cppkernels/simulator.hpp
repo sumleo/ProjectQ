@@ -65,8 +65,10 @@ public:
               std::swap(newvec, tmpBuff1_);
             newvec.resize(1UL << N_);
             // GPU Speed up here
-            std::size_t n = newvec.size();
-
+            thrust::device_vector<complex_type, aligned_allocator<complex_type,512>> tmp_device_vector;
+            tmp_device_vector = newvec;
+            thrust::fill(tmp_device_vector.begin(),tmp_device_vector.end(), 0.);
+            thrust::copy(vec_.begin(), vec_.begin() + vec_.size(), tmp_device_vector.begin());
             for (std::size_t i = 0; i < newvec.size(); ++i)
                 newvec[i] = (i < vec_.size())?vec_[i]:0.;
 
