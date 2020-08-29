@@ -18,12 +18,13 @@
 #include <vector>
 #include <complex>
 
-//#if defined(NOINTRIN) || !defined(INTRIN)
-//#include "nointrin/kernels.hpp"
-//#else
-//#include "intrin/kernels.hpp"
-//#endif
+#if defined(NOINTRIN) || !defined(INTRIN)
 #include "nointrin/kernels.hpp"
+#else
+#include "intrin/kernels.hpp"
+#endif
+#include <cuda_runtime.h>
+#include "cudastart.h"
 #include "intrin/alignedallocator.hpp"
 #include "fusion.hpp"
 #include <map>
@@ -32,8 +33,7 @@
 #include <tuple>
 #include <random>
 #include <functional>
-#include <cuda_runtime.h>
-#include "cuda_start.h"
+
 
 
 class Simulator{
@@ -68,6 +68,7 @@ public:
 
             for (std::size_t i = 0; i < newvec.size(); ++i)
                 newvec[i] = (i < vec_.size())?vec_[i]:0.;
+
             std::swap(vec_, newvec);
             // recycle large memory
             std::swap(tmpBuff1_, newvec);
