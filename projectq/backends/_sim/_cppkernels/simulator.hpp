@@ -71,9 +71,7 @@ public:
             tmp_device_vector = newvec;
             thrust::fill(tmp_device_vector.begin(),tmp_device_vector.end(), 0.);
             thrust::copy(vec_.begin(), vec_.begin() + vec_.size(), tmp_device_vector.begin());
-            for (std::size_t i = 0; i < newvec.size(); ++i)
-                newvec[i] = (i < vec_.size())?vec_[i]:0.;
-
+            newvec = tmp_device_vector;
             std::swap(vec_, newvec);
             // recycle large memory
             std::swap(tmpBuff1_, newvec);
