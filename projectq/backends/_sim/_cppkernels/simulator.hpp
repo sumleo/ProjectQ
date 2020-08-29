@@ -32,6 +32,8 @@
 #include <tuple>
 #include <random>
 #include <functional>
+#include <cuda_runtime.h>
+#include "cuda_start.h"
 
 
 class Simulator{
@@ -50,6 +52,8 @@ public:
         vec_[0]=1.; // all-zero initial state
         std::uniform_real_distribution<double> dist(0., 1.);
         rng_ = std::bind(dist, std::ref(rnd_eng_));
+        // Initial cuda device
+        initDevice(0);
     }
 
     void allocate_qubit(unsigned id){
@@ -59,7 +63,9 @@ public:
             if( tmpBuff1_.capacity() >= (1UL << N_) )
               std::swap(newvec, tmpBuff1_);
             newvec.resize(1UL << N_);
-#pragma omp parallel for schedule(static)
+            // GPU Speed up here
+            std::size_t n = newvec.size();
+
             for (std::size_t i = 0; i < newvec.size(); ++i)
                 newvec[i] = (i < vec_.size())?vec_[i]:0.;
             std::swap(vec_, newvec);
@@ -531,6 +537,8 @@ public:
     }
 
     ~Simulator(){
+        // Reset cuda device
+        cudaDeviceReset();
     }
 
 private:
