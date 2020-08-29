@@ -52,7 +52,7 @@ public:
         std::uniform_real_distribution<double> dist(0., 1.);
         rng_ = std::bind(dist, std::ref(rnd_eng_));
         //Initial GPU
-        initDevice(0);
+//        initDevice(0);
     }
 
     void allocate_qubit(unsigned id){
