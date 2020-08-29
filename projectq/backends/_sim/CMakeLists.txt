@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 2.8.12)
-project(cmake_example)
+project(projectq_gpu)
+find_package( CUDA REQUIRED )
 #find_package(PythonLibs)
 #include_directories(${PYTHON_INCLUDE_DIRS})
 add_subdirectory(pybind11)
