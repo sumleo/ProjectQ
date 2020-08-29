@@ -18,12 +18,12 @@
 #include <vector>
 #include <complex>
 
-#if defined(NOINTRIN) || !defined(INTRIN)
+//#if defined(NOINTRIN) || !defined(INTRIN)
+//#include "nointrin/kernels.hpp"
+//#else
+//#include "intrin/kernels.hpp"
+//#endif
 #include "nointrin/kernels.hpp"
-#else
-#include "intrin/kernels.hpp"
-#endif
-
 #include "intrin/alignedallocator.hpp"
 #include "fusion.hpp"
 #include <map>
