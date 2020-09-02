@@ -244,19 +244,20 @@ public:
         StateVector newvec; // avoid costly memory reallocations
         if( tmpBuff1_.capacity() >= vec_.size() )
           std::swap(newvec, tmpBuff1_);
-        newvec.resize(vec_.size());
-#pragma omp parallel for schedule(static)
-        for (std::size_t i = 0; i < vec_.size(); i++)
-          newvec[i] = 0;
+         newvec.resize(vec_.size());
+//#pragma omp parallel for schedule(static)
+         thrust::fill(newvec.begin(),newvec.end(), 0);
+//        for (std::size_t i = 0; i < vec_.size(); i++)
+//          newvec[i] = 0;
 
 //#pragma omp parallel reduction(+:newvec[:newvec.size()]) if(parallelize) // requires OpenMP 4.5
         {
-          std::vector<int> res(quregs.size());
+          thrust::host_vector<int> res(quregs.size());
+          thrust::fill(res.begin(), res.end(), 0);
           //#pragma omp for schedule(static)
           for (std::size_t i = 0; i < vec_.size(); ++i){
               if ((ctrlmask&i) == ctrlmask){
                   for (unsigned qr_i = 0; qr_i < quregs.size(); ++qr_i){
-                      res[qr_i] = 0;
                       for (unsigned qb_i = 0; qb_i < quregs[qr_i].size(); ++qb_i)
                           res[qr_i] |= ((i >> quregs[qr_i][qb_i])&1) << qb_i;
                   }
