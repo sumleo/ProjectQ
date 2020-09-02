@@ -46,9 +46,9 @@ public:
     using DeviceVector = thrust::device_vector<complex_type, aligned_allocator<complex_type,512>>;
     using Map = std::map<unsigned, unsigned>;
     using RndEngine = std::mt19937;
-    using Term = thrust::host_vector<std::pair<unsigned, char>>;
-    using TermsDict = thrust::host_vector<std::pair<Term, calc_type>>;
-    using ComplexTermsDict = thrust::host_vector<std::pair<Term, complex_type>>;
+    using Term = std::vector<std::pair<unsigned, char>>;
+    using TermsDict = std::vector<std::pair<Term, calc_type>>;
+    using ComplexTermsDict = std::vector<std::pair<Term, complex_type>>;
 
     Simulator(unsigned seed = 1) : N_(0), vec_(1,0.), fusion_qubits_min_(4),
                                    fusion_qubits_max_(5), rnd_eng_(seed) {
@@ -152,10 +152,10 @@ public:
         }
     }
 
-    void measure_qubits(thrust::host_vector<unsigned> const& ids, thrust::host_vector<bool> &res){
+    void measure_qubits(std::vector<unsigned> const& ids, std::vector<bool> &res){
         run();
 
-        thrust::host_vector<unsigned> positions(ids.size());
+        std::vector<unsigned> positions(ids.size());
         for (unsigned i = 0; i < ids.size(); ++i)
             positions[i] = map_[ids[i]];
 
@@ -170,7 +170,7 @@ public:
         pick--;
         // determine result vector (boolean values for each qubit)
         // and create mask to detect bad entries (i.e., entries that don't agree with measurement)
-        res = thrust::host_vector<bool>(ids.size());
+        res = std::vector<bool>(ids.size());
         std::size_t mask = 0;
         std::size_t val = 0;
         for (unsigned i = 0; i < ids.size(); ++i){
@@ -195,8 +195,8 @@ public:
             vec_[i] *= N;
     }
 
-    thrust::host_vector<bool> measure_qubits_return(thrust::host_vector<unsigned> const& ids){
-        thrust::host_vector<bool> ret;
+    std::vector<bool> measure_qubits_return(std::vector<unsigned> const& ids){
+        std::vector<bool> ret;
         measure_qubits(ids, ret);
         return ret;
     }
@@ -212,8 +212,8 @@ public:
     }
 
     template <class M>
-    void apply_controlled_gate(M const& m, const thrust::host_vector<unsigned>& ids,
-                               const thrust::host_vector<unsigned>& ctrl){
+    void apply_controlled_gate(M const& m, const std::vector<unsigned>& ids,
+                               const std::vector<unsigned>& ctrl){
         auto fused_gates = fused_gates_;
         fused_gates.insert(m, ids, ctrl);
 
@@ -232,7 +232,7 @@ public:
     }
 
     template <class F, class QuReg>
-    void emulate_math(F const& f, QuReg quregs, const thrust::host_vector<unsigned>& ctrl,
+    void emulate_math(F const& f, QuReg quregs, const std::vector<unsigned>& ctrl,
                       bool parallelize = false){
         run();
         auto ctrlmask = get_control_mask(ctrl);
@@ -252,7 +252,7 @@ public:
 
 //#pragma omp parallel reduction(+:newvec[:newvec.size()]) if(parallelize) // requires OpenMP 4.5
         {
-          thrust::host_vector<int> res(quregs.size());
+          std::vector<int> res(quregs.size());
           thrust::fill(res.begin(), res.end(), 0);
           //#pragma omp for schedule(static)
           for (std::size_t i = 0; i < vec_.size(); ++i){
@@ -281,26 +281,26 @@ public:
 
     // faster version without calling python 
     template<class QuReg>
-    inline void emulate_math_addConstant(int a, const QuReg& quregs, const thrust::host_vector<unsigned>& ctrl)
+    inline void emulate_math_addConstant(int a, const QuReg& quregs, const std::vector<unsigned>& ctrl)
     {
-      emulate_math([a](thrust::host_vector<int> &res){for(auto& x: res) x = x + a;}, quregs, ctrl, true);
+      emulate_math([a](std::vector<int> &res){for(auto& x: res) x = x + a;}, quregs, ctrl, true);
     }
 
     // faster version without calling python 
     template<class QuReg>
-    inline void emulate_math_addConstantModN(int a, int N, const QuReg& quregs, const thrust::host_vector<unsigned>& ctrl)
+    inline void emulate_math_addConstantModN(int a, int N, const QuReg& quregs, const std::vector<unsigned>& ctrl)
     {
-      emulate_math([a,N](thrust::host_vector<int> &res){for(auto& x: res) x = (x + a) % N;}, quregs, ctrl, true);
+      emulate_math([a,N](std::vector<int> &res){for(auto& x: res) x = (x + a) % N;}, quregs, ctrl, true);
     }
 
     // faster version without calling python 
     template<class QuReg>
-    inline void emulate_math_multiplyByConstantModN(int a, int N, const QuReg& quregs, const thrust::host_vector<unsigned>& ctrl)
+    inline void emulate_math_multiplyByConstantModN(int a, int N, const QuReg& quregs, const std::vector<unsigned>& ctrl)
     {
-      emulate_math([a,N](thrust::host_vector<int> &res){for(auto& x: res) x = (x * a) % N;}, quregs, ctrl, true);
+      emulate_math([a,N](std::vector<int> &res){for(auto& x: res) x = (x * a) % N;}, quregs, ctrl, true);
     }
 
-    calc_type get_expectation_value(TermsDict const& td, thrust::host_vector<unsigned> const& ids){
+    calc_type get_expectation_value(TermsDict const& td, std::vector<unsigned> const& ids){
         run();
         calc_type expectation = 0.;
 
@@ -332,7 +332,7 @@ public:
         return expectation;
     }
 
-    void apply_qubit_operator(ComplexTermsDict const& td, thrust::host_vector<unsigned> const& ids){
+    void apply_qubit_operator(ComplexTermsDict const& td, std::vector<unsigned> const& ids){
         run();
         StateVector new_state, current_state; // avoid costly memory reallocations
         if( tmpBuff1_.capacity() >= vec_.size() )
@@ -360,8 +360,8 @@ public:
         std::swap(tmpBuff2_, current_state);
     }
 
-    calc_type get_probability(thrust::host_vector<bool> const& bit_string,
-                              thrust::host_vector<unsigned> const& ids){
+    calc_type get_probability(std::vector<bool> const& bit_string,
+                              std::vector<unsigned> const& ids){
         run();
         if (!check_ids(ids))
             throw(std::runtime_error("get_probability(): Unknown qubit id. Please make sure you have called eng.flush()."));
@@ -378,8 +378,8 @@ public:
         return probability;
     }
 
-    complex_type const& get_amplitude(thrust::host_vector<bool> const& bit_string,
-                                      thrust::host_vector<unsigned> const& ids){
+    complex_type const& get_amplitude(std::vector<bool> const& bit_string,
+                                      std::vector<unsigned> const& ids){
         run();
         std::size_t chk = 0;
         std::size_t index = 0;
@@ -395,8 +395,8 @@ public:
     }
 
     void emulate_time_evolution(TermsDict const& tdict, calc_type const& time,
-                                thrust::host_vector<unsigned> const& ids,
-                                thrust::host_vector<unsigned> const& ctrl){
+                                std::vector<unsigned> const& ids,
+                                std::vector<unsigned> const& ctrl){
         run();
         complex_type I(0., 1.);
         calc_type tr = 0., op_nrm = 0.;
@@ -448,7 +448,7 @@ public:
         }
     }
 
-    void set_wavefunction(StateVector const& wavefunction, thrust::host_vector<unsigned> const& ordering){
+    void set_wavefunction(StateVector const& wavefunction, std::vector<unsigned> const& ordering){
         run();
         // make sure there are 2^n amplitudes for n qubits
         assert(wavefunction.size() == (1UL << ordering.size()));
@@ -464,7 +464,7 @@ public:
             vec_[i] = wavefunction[i];
     }
 
-    void collapse_wavefunction(thrust::host_vector<unsigned> const& ids, thrust::host_vector<bool> const& values){
+    void collapse_wavefunction(std::vector<unsigned> const& ids, std::vector<bool> const& values){
         run();
         assert(ids.size() == values.size());
         if (!check_ids(ids))
@@ -547,27 +547,27 @@ public:
     }
 
 private:
-    void apply_term(Term const& term, thrust::host_vector<unsigned> const& ids,
-                    thrust::host_vector<unsigned> const& ctrl){
+    void apply_term(Term const& term, std::vector<unsigned> const& ids,
+                    std::vector<unsigned> const& ctrl){
         complex_type I(0., 1.);
         Fusion::Matrix X = {{0., 1.}, {1., 0.}};
         Fusion::Matrix Y = {{0., -I}, {I, 0.}};
         Fusion::Matrix Z = {{1., 0.}, {0., -1.}};
-        thrust::host_vector<Fusion::Matrix> gates = {X, Y, Z};
+        std::vector<Fusion::Matrix> gates = {X, Y, Z};
         for (auto const& local_op : term){
             unsigned id = ids[local_op.first];
             apply_controlled_gate(gates[local_op.second - 'X'], {id}, ctrl);
         }
         run();
     }
-    std::size_t get_control_mask(thrust::host_vector<unsigned> const& ctrls){
+    std::size_t get_control_mask(std::vector<unsigned> const& ctrls){
         std::size_t ctrlmask = 0;
         for (auto c : ctrls)
             ctrlmask |= (1UL << map_[c]);
         return ctrlmask;
     }
 
-    bool check_ids(thrust::host_vector<unsigned> const& ids){
+    bool check_ids(std::vector<unsigned> const& ids){
         for (auto id : ids)
             if (!map_.count(id))
                 return false;
